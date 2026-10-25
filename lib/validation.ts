@@ -168,6 +168,9 @@ export type CallbackFormValues = z.input<typeof callbackFormSchema>;
 const optNum = (label: string, max = 10_000_000) =>
   z.string().refine((v) => v.trim() === "" || (Number.isFinite(Number(v)) && Number(v) >= 0 && Number(v) <= max), `${label} must be a positive number`);
 
+/** Room types a vacancy can be: a room or bed in an already-occupied flat. */
+export const VACANCY_TYPES = ["Shared Room", "Private Room"] as const;
+
 export const listingFormSchema = z
   .object({
     title: z.string().trim().min(4, "Give the listing a title (4+ characters)").max(90, "Keep the title under 90 characters"),
@@ -199,8 +202,12 @@ export const listingFormSchema = z
     ownerIdentityChecked: z.boolean(),
     listingDetailsReviewed: z.boolean(),
     verificationNotes: z.string().max(800),
+    isVacancy: z.boolean(),
   })
   .superRefine((v, ctx) => {
+    if (v.isVacancy && !(VACANCY_TYPES as readonly string[]).includes(v.accommodationType)) {
+      ctx.addIssue({ code: "custom", path: ["accommodationType"], message: "A vacancy is a shared or private room in a flat" });
+    }
     const cap = v.capacity.trim() === "" ? null : Number(v.capacity);
     const occ = v.occupied.trim() === "" ? null : Number(v.occupied);
     if (occ != null && cap == null) ctx.addIssue({ code: "custom", path: ["capacity"], message: "Add total capacity to track occupancy" });
@@ -219,7 +226,6 @@ export type ListingFormValues = z.input<typeof listingFormSchema>;
  * The only thing the public can post: a room or bed free in a flat they already
  * live in. Whole flats, PGs and hostels are listed by REHLO staff only.
  */
-export const VACANCY_TYPES = ["Shared Room", "Private Room"] as const;
 export const VACANCY_MEDIA_FOLDER = "vacancy-submissions/";
 
 export const vacancyFormSchema = z

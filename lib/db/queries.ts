@@ -17,7 +17,7 @@ const PUBLIC_FIELDS = [
   "furnishing", "sharingType", "monthlyRent", "deposit", "maintenance", "otherCharges", "pricingNotes",
   "capacity", "occupied", "availableFrom", "bedrooms", "bathrooms", "amenities", "houseRules",
   "genderRestriction", "images", "videos", "ownerIdentityChecked", "listingDetailsReviewed",
-  "published", "source", "createdAt", "updatedAt",
+  "published", "isVacancy", "source", "createdAt", "updatedAt",
 ] as const;
 
 function publicListing(row: Record<string, unknown>): Listing {

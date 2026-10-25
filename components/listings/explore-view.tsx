@@ -17,6 +17,7 @@ function chipsFor(f: ListingFilters): Chip[] {
   const chips: Chip[] = [];
   if (f.q) chips.push({ key: "q", label: `“${f.q}”`, clear: { q: "" } });
   if (f.locality) chips.push({ key: "locality", label: f.locality, clear: { locality: "" } });
+  if (f.kind) chips.push({ key: "kind", label: f.kind === "vacancy" ? "Vacancies in flats" : "Whole places", clear: { kind: "" } });
   if (f.type) chips.push({ key: "type", label: f.type, clear: { type: "" } });
   if (f.min != null) chips.push({ key: "min", label: `From ${formatINR(f.min)}`, clear: { min: null } });
   if (f.max != null) chips.push({ key: "max", label: `Up to ${formatINR(f.max)}`, clear: { max: null } });

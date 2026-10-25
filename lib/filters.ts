@@ -3,10 +3,13 @@ import { ACCOMMODATION_TYPES, FURNISHING, GENDER_RESTRICTIONS } from "@/types";
 
 export type SortKey = "relevance" | "price-asc" | "price-desc" | "newest";
 export type VerifiedFilter = "" | "owner" | "listing" | "both";
+/** "vacancy": a room or bed in an occupied flat; "whole": a whole flat, PG or hostel. */
+export type KindFilter = "" | "vacancy" | "whole";
 
 export type ListingFilters = {
   q: string;
   locality: string;
+  kind: KindFilter;
   type: AccommodationType | "";
   min: number | null;
   max: number | null;
@@ -21,6 +24,7 @@ export type ListingFilters = {
 export const EMPTY_FILTERS: ListingFilters = {
   q: "",
   locality: "",
+  kind: "",
   type: "",
   min: null,
   max: null,
@@ -47,9 +51,11 @@ function oneOf<T extends string>(v: string | null, options: readonly T[]): T | "
 export function parseFilters(params: ParamsLike): ListingFilters {
   const sort = params.get("sort");
   const verified = params.get("verified");
+  const kind = params.get("kind");
   return {
     q: params.get("q") ?? "",
     locality: params.get("locality") ?? "",
+    kind: kind === "vacancy" || kind === "whole" ? kind : "",
     type: oneOf(params.get("type"), ACCOMMODATION_TYPES),
     min: num(params.get("min")),
     max: num(params.get("max")),
@@ -66,6 +72,7 @@ export function filtersToQuery(f: ListingFilters): string {
   const p = new URLSearchParams();
   if (f.q) p.set("q", f.q);
   if (f.locality) p.set("locality", f.locality);
+  if (f.kind) p.set("kind", f.kind);
   if (f.type) p.set("type", f.type);
   if (f.min != null) p.set("min", String(f.min));
   if (f.max != null) p.set("max", String(f.max));
@@ -92,6 +99,8 @@ export function applyFilters(listings: Listing[], f: ListingFilters): Listing[] 
   const result = listings.filter((l) => {
     if (q && !`${l.title} ${l.locality} ${l.description}`.toLowerCase().includes(q)) return false;
     if (f.locality && l.locality !== f.locality) return false;
+    if (f.kind === "vacancy" && !l.isVacancy) return false;
+    if (f.kind === "whole" && l.isVacancy) return false;
     if (f.type && l.accommodationType !== f.type) return false;
     if (f.min != null && l.monthlyRent < f.min) return false;
     if (f.max != null && l.monthlyRent > f.max) return false;
@@ -116,6 +125,7 @@ export function countActiveFilters(f: ListingFilters): number {
   return (
     (f.q ? 1 : 0) +
     (f.locality ? 1 : 0) +
+    (f.kind ? 1 : 0) +
     (f.type ? 1 : 0) +
     (f.min != null ? 1 : 0) +
     (f.max != null ? 1 : 0) +

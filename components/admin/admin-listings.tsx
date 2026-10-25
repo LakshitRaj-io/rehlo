@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { Eye, EyeOff, Pencil, Plus, Search, Send, Trash2 } from "lucide-react";
+import { BedSingle, Eye, EyeOff, Pencil, Plus, Search, Send, Trash2 } from "lucide-react";
 import type { Listing } from "@/types";
 import { ACCOMMODATION_TYPES } from "@/types";
 import { assignListing, deleteListing, setListingPublished } from "@/app/actions/admin";
@@ -14,7 +14,7 @@ import { Modal } from "@/components/ui/modal";
 import { toast } from "@/components/ui/toast";
 import { ListingCard, vacancyText } from "@/components/listings/listing-card";
 import { StayDetail } from "@/components/listings/stay-detail";
-import { ListingEditor } from "./listing-editor";
+import { ListingEditor, type ListingKind } from "./listing-editor";
 import { PublishBadge } from "./status-badge";
 
 type SortKey = "updated" | "rent-asc" | "rent-desc" | "title";
@@ -32,11 +32,11 @@ function Checks({ l }: { l: Listing }) {
   );
 }
 
-export function AdminListings({ onCreate }: { onCreate: () => void }) {
+export function AdminListings({ onCreate }: { onCreate: (kind: ListingKind) => void }) {
   const { listings, enquiries, isAdmin, agents, agentName, putListing, dropListing } = useAdmin();
   const reduce = useReducedMotion();
   const [q, setQ] = useState("");
-  const [status, setStatus] = useState<"all" | "published" | "draft" | "vacancy">("all");
+  const [status, setStatus] = useState<"all" | "published" | "draft" | "vacancies" | "vacancy">("all");
   const [type, setType] = useState("");
   const [checks, setChecks] = useState<"" | "none" | "partial" | "both">("");
   const [sort, setSort] = useState<SortKey>("updated");
@@ -51,6 +51,7 @@ export function AdminListings({ onCreate }: { onCreate: () => void }) {
       if (needle && !`${l.title} ${l.locality} ${l.slug} ${l.ownerName ?? ""} ${agentName(l.agentId)}`.toLowerCase().includes(needle)) return false;
       if (status === "published" && !l.published) return false;
       if (status === "draft" && l.published) return false;
+      if (status === "vacancies" && !l.isVacancy) return false;
       if (status === "vacancy" && l.source !== "public-vacancy") return false;
       if (type && l.accommodationType !== type) return false;
       const n = Number(l.ownerIdentityChecked) + Number(l.listingDetailsReviewed);
@@ -106,7 +107,11 @@ export function AdminListings({ onCreate }: { onCreate: () => void }) {
     ) : null;
 
   const sourceTag = (l: Listing) =>
-    l.source === "public-vacancy" ? <span className="label border-2 border-ink bg-orange px-1.5 py-0.5">Student vacancy</span> : null;
+    l.source === "public-vacancy" ? (
+      <span className="label border-2 border-ink bg-orange px-1.5 py-0.5">Student vacancy</span>
+    ) : l.isVacancy ? (
+      <span className="label border-2 border-ink bg-lime px-1.5 py-0.5">Vacancy</span>
+    ) : null;
 
   const linkedCount = deleting ? enquiries.filter((e) => e.listingId === deleting.id).length : 0;
 
@@ -134,10 +139,16 @@ export function AdminListings({ onCreate }: { onCreate: () => void }) {
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <h1 className="display text-5xl md:text-7xl">{isAdmin ? "Listings" : "My listings"}</h1>
-        <button type="button" className="btn btn-lime btn-lg" onClick={onCreate} data-cursor="cta">
-          <Plus className="size-5" strokeWidth={3} aria-hidden="true" />
-          Add listing
-        </button>
+        <div className="flex flex-wrap gap-3">
+          <button type="button" className="btn btn-lime btn-lg" onClick={() => onCreate("listing")} data-cursor="cta">
+            <Plus className="size-5" strokeWidth={3} aria-hidden="true" />
+            Add listing
+          </button>
+          <button type="button" className="btn btn-lg" onClick={() => onCreate("vacancy")}>
+            <BedSingle className="size-5" aria-hidden="true" />
+            Add vacancy
+          </button>
+        </div>
       </div>
 
       {/* Toolbar */}
@@ -152,6 +163,7 @@ export function AdminListings({ onCreate }: { onCreate: () => void }) {
           <option value="all">All statuses</option>
           <option value="published">Published</option>
           <option value="draft">Drafts</option>
+          <option value="vacancies">Vacancies</option>
           {isAdmin && <option value="vacancy">Student vacancies</option>}
         </select>
         <label className="sr-only" htmlFor="adm-type">Type</label>

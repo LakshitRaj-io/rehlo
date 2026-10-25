@@ -7,7 +7,7 @@ import { ACCOMMODATION_TYPES, FURNISHING, GENDER_RESTRICTIONS } from "@/types";
 import { AMENITIES, LOCALITIES } from "@/data/site";
 import { createStaffUpload, saveListing } from "@/app/actions/admin";
 import { MAX_IMAGES, MAX_VIDEOS } from "@/lib/media";
-import { listingFormSchema, type ListingFormValues } from "@/lib/validation";
+import { listingFormSchema, VACANCY_TYPES, type ListingFormValues } from "@/lib/validation";
 import { listingToFormValues } from "@/lib/records";
 import { useZodForm } from "@/lib/use-zod-form";
 import { cn, isValidHttpUrl, slugify, vacancies } from "@/lib/utils";
@@ -20,19 +20,29 @@ import { useAdmin } from "./admin-context";
 
 const n = (v: string) => (v.trim() === "" ? null : Number(v));
 
-type Props = { open: boolean; listing: Listing | null; onClose: () => void; onSaved?: () => void };
+export type ListingKind = "listing" | "vacancy";
 
-export function ListingEditor({ open, listing, onClose, onSaved }: Props) {
+type Props = {
+  open: boolean;
+  listing: Listing | null;
+  /** For a new listing: start as a full listing or as a vacancy in a flat. */
+  kind?: ListingKind;
+  onClose: () => void;
+  onSaved?: () => void;
+};
+
+export function ListingEditor({ open, listing, kind = "listing", onClose, onSaved }: Props) {
+  const noun = (listing ? listing.isVacancy : kind === "vacancy") ? "vacancy" : "listing";
   return (
     <Modal
       open={open}
       onClose={onClose}
       size="xl"
       tone="paper"
-      eyebrow={listing ? (listing.published ? "Editing a published listing" : "Editing a draft") : "New listing"}
-      title={listing ? listing.title : "Add listing"}
+      eyebrow={listing ? (listing.published ? `Editing a published ${noun}` : "Editing a draft") : `New ${noun}`}
+      title={listing ? listing.title : `Add ${noun}`}
     >
-      {open && <EditorBody key={listing?.id ?? "new"} listing={listing} onClose={onClose} onSaved={onSaved} />}
+      {open && <EditorBody key={listing?.id ?? `new-${kind}`} listing={listing} kind={kind} onClose={onClose} onSaved={onSaved} />}
     </Modal>
   );
 }
@@ -49,8 +59,15 @@ function Section({ title, children, note }: { title: string; children: React.Rea
   );
 }
 
-function EditorBody({ listing, onClose, onSaved }: { listing: Listing | null; onClose: () => void; onSaved?: () => void }) {
-  const initial = useMemo(() => listingToFormValues(listing), [listing]);
+function EditorBody({ listing, kind, onClose, onSaved }: { listing: Listing | null; kind: ListingKind; onClose: () => void; onSaved?: () => void }) {
+  const initial = useMemo(() => {
+    const values = listingToFormValues(listing);
+    if (!listing && kind === "vacancy") {
+      values.isVacancy = true;
+      values.accommodationType = "Shared Room";
+    }
+    return values;
+  }, [listing, kind]);
   const form = useZodForm(listingFormSchema, initial, "lst");
   const { values: v, set, errors: e, setErrors } = form;
   const [slugTouched, setSlugTouched] = useState(!!listing);
@@ -98,6 +115,7 @@ function EditorBody({ listing, onClose, onSaved }: { listing: Listing | null; on
       ownerContact: v.ownerContact.trim() || null,
       ownerIdentityChecked: v.ownerIdentityChecked,
       listingDetailsReviewed: v.listingDetailsReviewed,
+      isVacancy: v.isVacancy,
       verificationNotes: v.verificationNotes.trim(),
       published,
       source: listing?.source ?? (isAdmin ? "admin" : "agent"),
@@ -167,6 +185,30 @@ function EditorBody({ listing, onClose, onSaved }: { listing: Listing | null; on
       <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
       <div className="flex min-w-0 flex-col gap-5">
         <Section title="Basic information">
+          <fieldset>
+            <legend className="mb-2 text-sm font-bold">What are you posting?</legend>
+            <div className="grid gap-2 sm:grid-cols-2" role="radiogroup">
+              {([
+                { vacancy: false, label: "Full listing", body: "A whole flat, PG or hostel" },
+                { vacancy: true, label: "Vacancy in a flat", body: "A room or bed free in an already-occupied flat" },
+              ] as const).map((o) => (
+                <button
+                  key={o.label}
+                  type="button"
+                  role="radio"
+                  aria-checked={v.isVacancy === o.vacancy}
+                  onClick={() => {
+                    set("isVacancy", o.vacancy);
+                    if (o.vacancy && !(VACANCY_TYPES as readonly string[]).includes(v.accommodationType)) set("accommodationType", "Shared Room");
+                  }}
+                  className={cn("flex flex-col items-start border-2 border-ink p-3 text-left", v.isVacancy === o.vacancy ? "bg-lime" : "bg-paper hover:bg-lime/30")}
+                >
+                  <span className="font-bold">{o.label}</span>
+                  <span className="text-sm text-muted">{o.body}</span>
+                </button>
+              ))}
+            </div>
+          </fieldset>
           <Field id={form.id("title")} label="Listing title" error={e.title}>
             <input
               className="field"
@@ -213,7 +255,7 @@ function EditorBody({ listing, onClose, onSaved }: { listing: Listing | null; on
             <Field id={form.id("accommodationType")} label="Accommodation type" error={e.accommodationType}>
               <select className="field" value={v.accommodationType} onChange={(x) => set("accommodationType", x.target.value as ListingFormValues["accommodationType"])} {...describe(form.id("accommodationType"), e.accommodationType)}>
                 <option value="">Choose…</option>
-                {ACCOMMODATION_TYPES.map((t) => (
+                {(v.isVacancy ? VACANCY_TYPES : ACCOMMODATION_TYPES).map((t) => (
                   <option key={t} value={t}>{t === "Flat" ? "Full flat" : t}</option>
                 ))}
               </select>
@@ -254,16 +296,19 @@ function EditorBody({ listing, onClose, onSaved }: { listing: Listing | null; on
           </div>
         </Section>
 
-        <Section title="Occupancy" note="Vacancies are worked out from capacity minus occupied spaces.">
+        <Section
+          title="Occupancy"
+          note={v.isVacancy ? "Spots open are worked out from total beds minus people already living there." : "Vacancies are worked out from capacity minus occupied spaces."}
+        >
           <div className="grid gap-4 md:grid-cols-4">
-            <Field id={form.id("capacity")} label="Total capacity" optional error={e.capacity}>
+            <Field id={form.id("capacity")} label={v.isVacancy ? "Total beds in the flat" : "Total capacity"} optional error={e.capacity}>
               <input className="field price" type="number" min={0} value={v.capacity} onChange={(x) => set("capacity", x.target.value)} {...describe(form.id("capacity"), e.capacity)} />
             </Field>
-            <Field id={form.id("occupied")} label="Occupied spaces" optional error={e.occupied}>
+            <Field id={form.id("occupied")} label={v.isVacancy ? "People already living there" : "Occupied spaces"} optional error={e.occupied}>
               <input className="field price" type="number" min={0} value={v.occupied} onChange={(x) => set("occupied", x.target.value)} {...describe(form.id("occupied"), e.occupied)} />
             </Field>
             <div className="flex flex-col gap-1.5">
-              <span className="text-sm font-bold">Available vacancies</span>
+              <span className="text-sm font-bold">{v.isVacancy ? "Spots open" : "Available vacancies"}</span>
               <output className="price grid min-h-[2.9rem] items-center border-2 border-dashed border-ink bg-paper px-3 font-display text-xl font-extrabold" aria-live="polite">
                 {vac == null ? "—" : vac}
               </output>
@@ -272,7 +317,7 @@ function EditorBody({ listing, onClose, onSaved }: { listing: Listing | null; on
               <input className="field" type="date" value={v.availableFrom} onChange={(x) => set("availableFrom", x.target.value)} id={form.id("availableFrom")} />
             </Field>
           </div>
-          <Field id={form.id("sharingType")} label="Occupancy arrangement" error={e.sharingType} hint="e.g. Twin sharing, Single occupancy, Whole flat (3–4 people)">
+          <Field id={form.id("sharingType")} label="Occupancy arrangement" error={e.sharingType} hint={v.isVacancy ? "e.g. Twin sharing, Own room in a shared flat" : "e.g. Twin sharing, Single occupancy, Whole flat (3–4 people)"}>
             <input className="field" value={v.sharingType} onChange={(x) => set("sharingType", x.target.value)} {...describe(form.id("sharingType"), e.sharingType, true)} />
           </Field>
         </Section>

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import { ExternalLink, LogOut, Plus, ShieldAlert } from "lucide-react";
+import { BedSingle, ExternalLink, LogOut, Plus, ShieldAlert } from "lucide-react";
 import { staffLogout } from "@/app/actions/admin";
 import { formatDateTime } from "@/lib/utils";
 import { REQUIREMENT_LABELS } from "@/lib/validation";
@@ -14,7 +14,7 @@ import { AdminListings } from "./admin-listings";
 import { AdminEnquiries } from "./admin-enquiries";
 import { AdminServices } from "./admin-services";
 import { AdminAgents } from "./admin-agents";
-import { ListingEditor } from "./listing-editor";
+import { ListingEditor, type ListingKind } from "./listing-editor";
 import { StatusBadge } from "./status-badge";
 
 const ALL_TABS = [
@@ -34,7 +34,7 @@ export function AdminApp() {
   const tabs = ALL_TABS.filter((t) => isAdmin || !t.adminOnly);
   const raw = params.get("tab");
   const tab: Tab = tabs.find((t) => t.id === raw)?.id ?? "overview";
-  const [creating, setCreating] = useState(false);
+  const [creating, setCreating] = useState<ListingKind | null>(null);
 
   const go = (t: Tab) => router.replace(t === "overview" ? "/admin" : `/admin?tab=${t}`, { scroll: false });
   const signOut = async () => {
@@ -126,10 +126,16 @@ export function AdminApp() {
                 <h1 className="display text-5xl md:text-7xl">Overview</h1>
                 <p className="mt-2 text-muted">Signed in as {staff.name}{isAdmin ? " (full access)" : " (agent)"}.</p>
               </div>
-              <button type="button" className="btn btn-lime self-start" onClick={() => setCreating(true)}>
-                <Plus className="size-4" strokeWidth={3} aria-hidden="true" />
-                Add listing
-              </button>
+              <div className="flex flex-wrap gap-3 self-start">
+                <button type="button" className="btn btn-lime" onClick={() => setCreating("listing")}>
+                  <Plus className="size-4" strokeWidth={3} aria-hidden="true" />
+                  Add listing
+                </button>
+                <button type="button" className="btn" onClick={() => setCreating("vacancy")}>
+                  <BedSingle className="size-4" aria-hidden="true" />
+                  Add vacancy
+                </button>
+              </div>
             </div>
 
             <dl className="grid grid-cols-2 gap-4 md:grid-cols-5">
@@ -175,13 +181,13 @@ export function AdminApp() {
           </div>
         )}
 
-        {tab === "listings" && <AdminListings onCreate={() => setCreating(true)} />}
+        {tab === "listings" && <AdminListings onCreate={setCreating} />}
         {tab === "enquiries" && <AdminEnquiries />}
         {tab === "services" && isAdmin && <AdminServices />}
         {tab === "agents" && isAdmin && <AdminAgents />}
       </main>
 
-      <ListingEditor open={creating} listing={null} onClose={() => setCreating(false)} onSaved={() => go("listings")} />
+      <ListingEditor open={creating !== null} listing={null} kind={creating ?? "listing"} onClose={() => setCreating(null)} onSaved={() => go("listings")} />
     </div>
   );
 }

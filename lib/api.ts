@@ -71,6 +71,8 @@ export const apiListingInput = z
     ownerIdentityChecked: z.boolean(),
     listingDetailsReviewed: z.boolean(),
     verificationNotes: z.string(),
+    /** A room or bed in an occupied flat; accommodationType must then be Shared Room or Private Room. */
+    isVacancy: z.boolean(),
     published: z.boolean(),
   })
   .partial()

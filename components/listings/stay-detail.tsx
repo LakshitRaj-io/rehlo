@@ -47,6 +47,11 @@ export function StayDetail({ listing: l, preview = false }: { listing: Listing; 
         <span className="border-2 border-ink bg-lime px-2 py-0.5">
           <span className="label">{l.accommodationType}</span>
         </span>
+        {l.isVacancy && (
+          <span className="border-2 border-ink bg-orange px-2 py-0.5">
+            <span className="label">Vacancy in an occupied flat</span>
+          </span>
+        )}
         {!l.published && (
           <span className="label border-2 border-ink bg-ink px-2 py-1 text-warm">Draft: not visible to students</span>
         )}

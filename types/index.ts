@@ -48,6 +48,8 @@ export type Listing = {
   verificationNotes: string;
 
   published: boolean;
+  /** A room or bed free in an already-occupied flat, rather than a whole PG / flat / hostel listing. */
+  isVacancy: boolean;
   /** "admin" / "agent": posted by REHLO staff. "public-vacancy": submitted by a student, unpublished until reviewed. */
   source: "admin" | "agent" | "public-vacancy";
   /** The agent who owns this listing; null for admin-posted listings and unclaimed vacancies. */

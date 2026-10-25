@@ -152,6 +152,7 @@ export function buildVacancyDraft(
     listingDetailsReviewed: false,
     verificationNotes: `Vacancy submitted by a student (${ref}, ${data.yearOfStudy}). ${media.images.length} photo(s), ${media.videos.length} video(s). An agent needs to visit, verify and assign it before publishing.`,
     published: false,
+    isVacancy: true,
     source: "public-vacancy",
     agentId: null,
     createdAt: now,
@@ -195,6 +196,7 @@ export function listingToFormValues(l: Listing | null): z.input<typeof listingFo
     ownerIdentityChecked: l?.ownerIdentityChecked ?? false,
     listingDetailsReviewed: l?.listingDetailsReviewed ?? false,
     verificationNotes: l?.verificationNotes ?? "",
+    isVacancy: l?.isVacancy ?? false,
   };
 }
 
@@ -243,6 +245,7 @@ export function buildListing(
     listingDetailsReviewed: isAdmin ? v.listingDetailsReviewed : existing?.listingDetailsReviewed ?? false,
     verificationNotes: v.verificationNotes.trim(),
     published,
+    isVacancy: v.isVacancy,
     source: existing?.source ?? (isAdmin ? "admin" : "agent"),
     agentId: existing ? existing.agentId : staff.role === "agent" ? staff.id : null,
     createdAt: existing?.createdAt ?? now,

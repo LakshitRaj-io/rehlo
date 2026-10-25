@@ -71,6 +71,8 @@ create table if not exists public.listings (
   listing_details_reviewed  boolean not null default false,
   verification_notes        text not null default '',  -- internal only
   published                 boolean not null default false,
+  -- A room or bed free in an already-occupied flat, rather than a whole PG / flat / hostel.
+  is_vacancy                boolean not null default false,
   source                    text not null check (source in ('admin','agent','public-vacancy')),
   -- The agent who owns the listing. Null for admin-posted and public vacancies.
   agent_id                  uuid references public.staff_agents (id) on delete set null,

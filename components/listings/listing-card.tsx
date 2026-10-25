@@ -54,6 +54,11 @@ export function ListingCard({ listing: l, shape = "default", priority, preview =
           <span className="border-2 border-ink bg-lime px-2 py-0.5">
             <span className="label">{l.accommodationType}</span>
           </span>
+          {l.isVacancy && (
+            <span className="border-2 border-ink bg-orange px-2 py-0.5">
+              <span className="label">Vacancy</span>
+            </span>
+          )}
           {l.videos.length > 0 && (
             <span className="flex items-center gap-1 border-2 border-ink bg-ink px-2 py-0.5 text-warm">
               <Video className="size-3.5" aria-hidden="true" />

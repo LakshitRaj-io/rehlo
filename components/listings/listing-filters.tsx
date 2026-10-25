@@ -81,6 +81,20 @@ export function ListingFiltersPanel({ filters: f, onChange, idPrefix, showGender
         </select>
       </Group>
 
+      <Group title="Looking for">
+        <div className="flex flex-wrap gap-2">
+          {([
+            { value: "", label: "Everything" },
+            { value: "whole", label: "Whole places" },
+            { value: "vacancy", label: "Vacancies in flats" },
+          ] as const).map((o) => (
+            <ToggleChip key={o.label} pressed={f.kind === o.value} onClick={() => onChange({ kind: o.value })}>
+              {o.label}
+            </ToggleChip>
+          ))}
+        </div>
+      </Group>
+
       <Group title="Type">
         <div className="flex flex-wrap gap-2">
           <ToggleChip pressed={f.type === ""} onClick={() => onChange({ type: "" })}>
