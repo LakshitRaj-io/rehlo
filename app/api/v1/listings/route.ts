@@ -1,4 +1,5 @@
 import { API_STAFF, apiError, apiListingInput, checkApiKey, mergeToFormValues } from "@/lib/api";
+import { defaultPhotoFor } from "@/data/properties";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { getStaffListings } from "@/lib/db/queries";
 import { fromRow, toRow } from "@/lib/db/rows";
@@ -27,6 +28,10 @@ export async function POST(req: Request) {
   if (!input.success) return apiError(400, "Invalid JSON body", fieldErrors(input.error));
 
   const values = mergeToFormValues(null, input.data);
+  if (values.images.length === 0) {
+    const cover = defaultPhotoFor(values.landmark);
+    if (cover) values.images = [cover];
+  }
   if (!values.slug) values.slug = await uniqueSlug(values.title);
   else if (await slugTaken(values.slug)) return apiError(409, "Another listing already uses this slug", { slug: "Already used" });
 

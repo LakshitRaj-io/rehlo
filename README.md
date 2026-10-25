@@ -87,7 +87,9 @@ npm run listings -- delete <id>
 
 A listing file has `defaults` (merged into every listing) and `listings`; `photos` / `videos` are
 paths relative to the file. Each listing gets its own copy of every file. `monthlyRent` is per
-person; put the whole-flat rent in `pricingNotes`. The `listings/` folder is git-ignored. The script
+person; put the whole-flat rent in `pricingNotes`. The `listings/` folder is git-ignored. A listing whose
+`landmark` matches a property in `data/properties.ts` (e.g. "Abode Valley") gets that property's
+default cover photo when no photos are given. The script
 reads `LISTINGS_API_KEY` and `REHLO_API_URL` (default `http://localhost:3000`) from `.env.local`;
 point `REHLO_API_URL` at your Vercel URL to add listings to the live site.
 

@@ -2,6 +2,8 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import type { EnquiryFeedback, EnquiryWithFeedback, Listing, ServiceRequest, StaffAgent, StaffSession, StudentEnquiry } from "@/types";
 import { supabaseAdmin, supabaseConfigured } from "@/lib/supabase/admin";
+import { FALLBACK_IMAGE } from "@/lib/media";
+import { defaultPhotoFor } from "@/data/properties";
 import { columns, fromRow } from "./rows";
 
 export const LISTINGS_TAG = "listings";
@@ -19,7 +21,11 @@ const PUBLIC_FIELDS = [
 ] as const;
 
 function publicListing(row: Record<string, unknown>): Listing {
-  return { ...fromRow<Listing>(row), ownerName: null, ownerContact: null, verificationNotes: "", agentId: null };
+  const l = fromRow<Listing>(row);
+  // No real photos yet: show the property's default cover (e.g. Abode Valley) instead of the placeholder.
+  const real = l.images.filter((src) => src !== FALLBACK_IMAGE);
+  const cover = real.length ? null : defaultPhotoFor(l.landmark);
+  return { ...l, images: cover ? [cover] : l.images, ownerName: null, ownerContact: null, verificationNotes: "", agentId: null };
 }
 
 /** Published listings, cached and refreshed whenever a staff action changes listings. */
