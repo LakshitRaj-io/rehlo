@@ -74,24 +74,24 @@ export function HeroSection() {
         </div>
 
         {/* Photo collage */}
-        <div className="relative order-3 min-h-[22rem] sm:min-h-[28rem] lg:order-2 lg:col-span-5 lg:min-h-[34rem]" aria-label="Photos of student rooms and shared flats" role="group">
+        <div className="relative order-3 min-h-[22rem] sm:min-h-[28rem] lg:order-2 lg:col-span-5 lg:min-h-[34rem]" aria-label="Photos of flats listed on REHLO" role="group">
           <motion.div
             className="absolute right-0 top-0 w-[72%] rotate-[2deg] border-2 border-ink bg-warm p-2 shadow-[var(--shadow-hard-lg)]"
             {...photoReveal(0)}
           >
-            <SafeImage src={HERO_PHOTOS.bedroom} alt="A bright student bedroom with a made bed by the window" priority className="aspect-[4/5] w-full" />
+            <SafeImage src={HERO_PHOTOS.living.src} alt={HERO_PHOTOS.living.alt} priority className={`aspect-[4/5] w-full ${HERO_PHOTOS.living.position}`} />
           </motion.div>
           <motion.div
             className="absolute bottom-6 left-0 w-[52%] -rotate-[3deg] border-2 border-ink bg-warm p-2 shadow-[var(--shadow-hard)]"
             {...photoReveal(1)}
           >
-            <SafeImage src={HERO_PHOTOS.kitchen} alt="A shared kitchen with a long counter" priority className="aspect-square w-full" />
+            <SafeImage src={HERO_PHOTOS.kitchen.src} alt={HERO_PHOTOS.kitchen.alt} priority className={`aspect-square w-full ${HERO_PHOTOS.kitchen.position}`} />
           </motion.div>
           <motion.div
             className="absolute bottom-0 right-[8%] w-[38%] rotate-[4deg] border-2 border-ink bg-warm p-2 shadow-[var(--shadow-hard)]"
             {...photoReveal(2)}
           >
-            <SafeImage src={HERO_PHOTOS.study} alt="A study corner with a desk and chair" className="aspect-[3/4] w-full" />
+            <SafeImage src={HERO_PHOTOS.dining.src} alt={HERO_PHOTOS.dining.alt} className={`aspect-[3/4] w-full ${HERO_PHOTOS.dining.position}`} />
           </motion.div>
 
           <motion.p
