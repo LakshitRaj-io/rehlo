@@ -161,6 +161,42 @@ export function buildVacancyDraft(
 }
 
 const num = (v: string) => (v.trim() === "" ? null : Number(v));
+const str = (n: number | null) => (n == null ? "" : String(n));
+
+/** The editable fields of a listing, in the string-based shape the listing form schema validates. */
+export function listingToFormValues(l: Listing | null): z.input<typeof listingFormSchema> {
+  return {
+    title: l?.title ?? "",
+    slug: l?.slug ?? "",
+    description: l?.description ?? "",
+    locality: l?.locality ?? "",
+    landmark: l?.landmark ?? "",
+    approxDistanceKm: str(l?.approxDistanceKm ?? null),
+    accommodationType: (l?.accommodationType ?? "") as z.input<typeof listingFormSchema>["accommodationType"],
+    furnishing: (l?.furnishing ?? "") as z.input<typeof listingFormSchema>["furnishing"],
+    sharingType: l?.sharingType ?? "",
+    monthlyRent: str(l?.monthlyRent ?? null),
+    deposit: str(l?.deposit ?? null),
+    maintenance: str(l?.maintenance ?? null),
+    otherCharges: l?.otherCharges ?? "",
+    pricingNotes: l?.pricingNotes ?? "",
+    capacity: str(l?.capacity ?? null),
+    occupied: str(l?.occupied ?? null),
+    availableFrom: l?.availableFrom ?? "",
+    bedrooms: str(l?.bedrooms ?? null),
+    bathrooms: str(l?.bathrooms ?? null),
+    amenities: l?.amenities ?? [],
+    houseRules: (l?.houseRules ?? []).join("\n"),
+    genderRestriction: l?.genderRestriction ?? "",
+    images: l?.images ?? [],
+    videos: l?.videos ?? [],
+    ownerName: l?.ownerName ?? "",
+    ownerContact: l?.ownerContact ?? "",
+    ownerIdentityChecked: l?.ownerIdentityChecked ?? false,
+    listingDetailsReviewed: l?.listingDetailsReviewed ?? false,
+    verificationNotes: l?.verificationNotes ?? "",
+  };
+}
 
 /**
  * Build the listing an admin or agent saved. Agents own what they create; only the

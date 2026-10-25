@@ -8,6 +8,7 @@ import { AMENITIES, LOCALITIES } from "@/data/site";
 import { createStaffUpload, saveListing } from "@/app/actions/admin";
 import { MAX_IMAGES, MAX_VIDEOS } from "@/lib/media";
 import { listingFormSchema, type ListingFormValues } from "@/lib/validation";
+import { listingToFormValues } from "@/lib/records";
 import { useZodForm } from "@/lib/use-zod-form";
 import { cn, isValidHttpUrl, slugify, vacancies } from "@/lib/utils";
 import { Modal } from "@/components/ui/modal";
@@ -17,42 +18,7 @@ import { ListingCard } from "@/components/listings/listing-card";
 import { MediaUploader } from "@/components/forms/media-uploader";
 import { useAdmin } from "./admin-context";
 
-const s = (n: number | null) => (n == null ? "" : String(n));
 const n = (v: string) => (v.trim() === "" ? null : Number(v));
-
-function toValues(l: Listing | null): ListingFormValues {
-  return {
-    title: l?.title ?? "",
-    slug: l?.slug ?? "",
-    description: l?.description ?? "",
-    locality: l?.locality ?? "",
-    landmark: l?.landmark ?? "",
-    approxDistanceKm: s(l?.approxDistanceKm ?? null),
-    accommodationType: (l?.accommodationType ?? "") as ListingFormValues["accommodationType"],
-    furnishing: (l?.furnishing ?? "") as ListingFormValues["furnishing"],
-    sharingType: l?.sharingType ?? "",
-    monthlyRent: s(l?.monthlyRent ?? null),
-    deposit: s(l?.deposit ?? null),
-    maintenance: s(l?.maintenance ?? null),
-    otherCharges: l?.otherCharges ?? "",
-    pricingNotes: l?.pricingNotes ?? "",
-    capacity: s(l?.capacity ?? null),
-    occupied: s(l?.occupied ?? null),
-    availableFrom: l?.availableFrom ?? "",
-    bedrooms: s(l?.bedrooms ?? null),
-    bathrooms: s(l?.bathrooms ?? null),
-    amenities: l?.amenities ?? [],
-    houseRules: (l?.houseRules ?? []).join("\n"),
-    genderRestriction: l?.genderRestriction ?? "",
-    images: l?.images ?? [],
-    videos: l?.videos ?? [],
-    ownerName: l?.ownerName ?? "",
-    ownerContact: l?.ownerContact ?? "",
-    ownerIdentityChecked: l?.ownerIdentityChecked ?? false,
-    listingDetailsReviewed: l?.listingDetailsReviewed ?? false,
-    verificationNotes: l?.verificationNotes ?? "",
-  };
-}
 
 type Props = { open: boolean; listing: Listing | null; onClose: () => void; onSaved?: () => void };
 
@@ -84,7 +50,7 @@ function Section({ title, children, note }: { title: string; children: React.Rea
 }
 
 function EditorBody({ listing, onClose, onSaved }: { listing: Listing | null; onClose: () => void; onSaved?: () => void }) {
-  const initial = useMemo(() => toValues(listing), [listing]);
+  const initial = useMemo(() => listingToFormValues(listing), [listing]);
   const form = useZodForm(listingFormSchema, initial, "lst");
   const { values: v, set, errors: e, setErrors } = form;
   const [slugTouched, setSlugTouched] = useState(!!listing);

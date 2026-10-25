@@ -8,3 +8,6 @@ next-env.d.ts
 .DS_Store
 verify/dist
 .vercel
+
+# Listing source files and photos for npm run listings (photos are stored in Supabase)
+/listings/

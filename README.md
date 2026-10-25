@@ -21,6 +21,7 @@ which stay hidden until staff verify them.
    | `ADMIN_PASSWORD_HASH` | `npm run admin:hash -- "your-password"` |
    | `ADMIN_SESSION_SECRET` | Optional. Any long random string; defaults to the service key |
    | `NEXT_PUBLIC_SITE_URL` | Optional. e.g. `https://rehlo.in` |
+   | `LISTINGS_API_KEY` | Optional. 32+ random characters; turns on the listings API (see below) |
 
 3. Run it:
 
@@ -59,6 +60,36 @@ Requires Node 20.9+.
 | `/services` | Home-service requests |
 | `/post-a-vacancy` | Public vacancy form with photo and video upload (`/list-your-property` redirects here) |
 | `/admin` | Staff area |
+
+## Adding listings in bulk (API + script)
+
+A REST API under `/api/v1` lets scripts manage listings with admin rights. It's off unless
+`LISTINGS_API_KEY` (32+ random characters) is set on the server; every request needs
+`Authorization: Bearer <LISTINGS_API_KEY>`.
+
+| Endpoint | Does |
+|---|---|
+| `GET /api/v1/listings` | All listings, drafts and internal fields included |
+| `POST /api/v1/listings` | Create (fields in `lib/api.ts`; `slug` defaults from the title, `published` defaults to true) |
+| `GET / PATCH / DELETE /api/v1/listings/:id` | Read, update only the fields sent, or delete (also deletes its files) |
+| `POST /api/v1/uploads` | `{ kind, contentType, size }` → a signed URL to `PUT` the file to, plus its `publicUrl` |
+
+Changes go through the same validation as the admin editor and show on the public site immediately.
+
+The script wraps it, uploading local photos and videos for you:
+
+```bash
+npm run listings -- add listings/estancia/estancia.json
+npm run listings -- list
+npm run listings -- unpublish <id>
+npm run listings -- delete <id>
+```
+
+A listing file has `defaults` (merged into every listing) and `listings`; `photos` / `videos` are
+paths relative to the file. Each listing gets its own copy of every file. `monthlyRent` is per
+person; put the whole-flat rent in `pricingNotes`. The `listings/` folder is git-ignored. The script
+reads `LISTINGS_API_KEY` and `REHLO_API_URL` (default `http://localhost:3000`) from `.env.local`;
+point `REHLO_API_URL` at your Vercel URL to add listings to the live site.
 
 ## How data flows
 
