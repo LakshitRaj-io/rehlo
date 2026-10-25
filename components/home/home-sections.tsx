@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight, Bug, Droplets, FileText, IndianRupee, Plug, SprayCan, UserCheck, ClipboardCheck, WashingMachine, Zap } from "lucide-react";
+import { Bug, Droplets, FileText, IndianRupee, Plug, SprayCan, UserCheck, ClipboardCheck, WashingMachine, Zap } from "lucide-react";
 import { SAMPLE_FLATMATES } from "@/data/flatmates";
 import { SERVICE_CATEGORY_META } from "@/data/services";
 import { SERVICE_CATEGORIES, type ServiceCategory } from "@/types";
@@ -192,29 +192,6 @@ export function LocationSection() {
           </p>
         </div>
         <LocationGrid />
-      </div>
-    </section>
-  );
-}
-
-/* ---------------- Vacancy CTA ---------------- */
-
-export function OwnerCta() {
-  return (
-    <section aria-labelledby="owner-title" className="border-b-2 border-warm/15 bg-ink text-warm">
-      <div className="mx-auto flex max-w-[1440px] flex-col gap-8 px-4 py-20 md:flex-row md:items-end md:justify-between md:px-8 md:py-28">
-        <div>
-          <h2 id="owner-title" className="display text-[clamp(3rem,9vw,8rem)] text-lime">
-            Room free
-            <br />
-            in your flat?
-          </h2>
-          <p className="mt-5 max-w-md text-lg text-warm/85">Post the vacancy. A REHLO agent verifies it and handles every enquiry, so your number stays private.</p>
-        </div>
-        <Link href="/post-a-vacancy" className="btn btn-lime btn-lg shrink-0 self-start md:self-end" data-cursor="cta">
-          Post a vacancy
-          <ArrowUpRight className="size-5" aria-hidden="true" />
-        </Link>
       </div>
     </section>
   );

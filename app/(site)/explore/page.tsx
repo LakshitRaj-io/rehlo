@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ExploreView } from "@/components/listings/explore-view";
 import { BreadcrumbSchema } from "@/components/seo/json-ld";
+import { SITE_URL } from "@/lib/site-url";
 
-const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://rehlo.in";
+const BASE = SITE_URL;
 
 export const metadata: Metadata = {
   title: "Explore PGs, Flats & Rooms near SRM KTR",

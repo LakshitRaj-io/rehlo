@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { VacancyForm } from "@/components/forms/vacancy-form";
+import { SITE_URL } from "@/lib/site-url";
 
-const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://rehlo.in";
+const BASE = SITE_URL;
 
 export const metadata: Metadata = {
   title: "Post a Room Vacancy near SRM KTR — Find a Flatmate",

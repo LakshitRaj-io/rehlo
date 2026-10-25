@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { FlatmateFinder } from "@/components/flatmates/flatmate-finder";
+import { SITE_URL } from "@/lib/site-url";
 
-const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://rehlo.in";
+const BASE = SITE_URL;
 
 export const metadata: Metadata = {
   title: "Find a Flatmate near SRM KTR — Roommate Matching",

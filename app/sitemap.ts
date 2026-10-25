@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
 import { getPublishedListings } from "@/lib/db/queries";
+import { SITE_URL } from "@/lib/site-url";
 
-const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://rehlo.in";
+const BASE = SITE_URL;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();

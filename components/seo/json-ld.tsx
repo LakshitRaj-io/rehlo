@@ -1,6 +1,7 @@
 import type { Listing } from "@/types";
+import { SITE_URL } from "@/lib/site-url";
 
-const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://rehlo.in";
+const BASE = SITE_URL;
 
 function JsonLd({ data }: { data: Record<string, unknown> }) {
   return (

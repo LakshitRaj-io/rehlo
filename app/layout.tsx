@@ -4,6 +4,7 @@ import { CustomCursor } from "@/components/motion/custom-cursor";
 import { Toaster } from "@/components/ui/toast";
 import { WebSiteSchema, LocalBusinessSchema } from "@/components/seo/json-ld";
 import "./globals.css";
+import { SITE_URL } from "@/lib/site-url";
 
 const display = Bricolage_Grotesque({
   subsets: ["latin"],
@@ -18,7 +19,7 @@ const sans = Instrument_Sans({
   display: "swap",
 });
 
-const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://rehlo.in";
+const BASE = SITE_URL;
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE),

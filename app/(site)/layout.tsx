@@ -1,6 +1,7 @@
 import { AnnouncementBar } from "@/components/layout/announcement-bar";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { HelpCta } from "@/components/layout/help-cta";
 import { EnquiryHost } from "@/components/enquiry/enquiry-host";
 import { getPublishedListings } from "@/lib/db/queries";
 import { ListingsProvider } from "@/lib/store";
@@ -20,6 +21,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <main id="main" className="min-h-[60vh]">
         {children}
       </main>
+      <HelpCta />
       <SiteFooter />
       <EnquiryHost />
     </ListingsProvider>

@@ -20,7 +20,7 @@ which stay hidden until staff verify them.
    | `SUPABASE_SERVICE_ROLE_KEY` | Same page, `service_role` / secret key. **Server only.** |
    | `ADMIN_PASSWORD_HASH` | `npm run admin:hash -- "your-password"` |
    | `ADMIN_SESSION_SECRET` | Optional. Any long random string; defaults to the service key |
-   | `NEXT_PUBLIC_SITE_URL` | Optional. e.g. `https://rehlo.in` |
+   | `NEXT_PUBLIC_SITE_URL` | Optional. Your custom domain, e.g. `https://rehlo.in`; defaults to the Vercel production address (used for link previews) |
    | `LISTINGS_API_KEY` | Optional. 32+ random characters; turns on the listings API (see below) |
 
 3. Run it:

@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { HeroSection } from "@/components/home/hero-section";
 import { FeaturedStays } from "@/components/home/featured-stays";
-import { FlatmateSection, LocationSection, OwnerCta, ServicesSection, TrustSection } from "@/components/home/home-sections";
+import { FlatmateSection, LocationSection, ServicesSection, TrustSection } from "@/components/home/home-sections";
 import { Marquee } from "@/components/motion/marquee";
 import { FAQSchema, BreadcrumbSchema } from "@/components/seo/json-ld";
 import { site } from "@/data/site";
+import { SITE_URL } from "@/lib/site-url";
 
-const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://rehlo.in";
+const BASE = SITE_URL;
 
 export const metadata: Metadata = {
   title: "REHLO — PGs, Flats & Rooms near SRM KTR, Kattankulathur",
@@ -58,7 +59,6 @@ export default function HomePage() {
       <TrustSection />
       <Marquee items={["Clear rent", "Real checks", "No broker drama", "Student first"]} />
       <LocationSection />
-      <OwnerCta />
     </>
   );
 }

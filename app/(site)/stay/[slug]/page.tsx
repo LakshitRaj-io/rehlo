@@ -3,8 +3,9 @@ import { notFound } from "next/navigation";
 import { getPublishedListing, getPublishedListings } from "@/lib/db/queries";
 import { StayView } from "@/components/listings/stay-detail";
 import { ListingSchema, BreadcrumbSchema } from "@/components/seo/json-ld";
+import { SITE_URL } from "@/lib/site-url";
 
-const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://rehlo.in";
+const BASE = SITE_URL;
 
 export async function generateStaticParams() {
   return (await getPublishedListings()).map((l) => ({ slug: l.slug }));

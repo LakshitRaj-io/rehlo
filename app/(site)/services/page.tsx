@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ServicesView } from "@/components/services/services-view";
+import { SITE_URL } from "@/lib/site-url";
 
-const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://rehlo.in";
+const BASE = SITE_URL;
 
 export const metadata: Metadata = {
   title: "Home Services near SRM KTR — Cleaning, Plumbing, Electrical",
